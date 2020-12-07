@@ -73,3 +73,5 @@ Carthage
 Charts.framework.zip
 ChartsRealm.framework.zip
 .swiftpm/
+
+.idea/

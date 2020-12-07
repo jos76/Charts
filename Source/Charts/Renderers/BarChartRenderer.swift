@@ -373,13 +373,30 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
             guard viewPortHandler.isInBoundsLeft(barRect.origin.x + barRect.size.width) else { continue }
             guard viewPortHandler.isInBoundsRight(barRect.origin.x) else { break }
 
-            if !isSingleColor
-            {
-                // Set the color for the currently drawn value. If the index is out of bounds, reuse colors.
-                context.setFillColor(dataSet.color(atIndex: j).cgColor)
+            if let gradient = dataSet.gradient {
+                context.saveGState()
+
+                context.addRect(barRect)
+
+                if !context.isPathEmpty {
+                    context.clip()
+                }
+
+                // todo: probably want to add an option to specify if the gradient should be for the height of the chart
+                // or the height of the bar
+                let start = CGPoint(x: barRect.midX, y: viewPortHandler.contentRect.minY)
+                let end = CGPoint(x: barRect.midX, y: viewPortHandler.contentRect.maxY)
+                context.drawLinearGradient(gradient, start: start, end: end, options: [])
+                context.restoreGState()
+
+            } else {
+                if !isSingleColor {
+                    // Set the color for the currently drawn value. If the index is out of bounds, reuse colors.
+                    context.setFillColor(dataSet.color(atIndex: j).cgColor)
+                }
+
+                context.fill(barRect)
             }
-            
-            context.fill(barRect)
             
             if drawBorder
             {
